@@ -1,6 +1,6 @@
-controller_frequency: 5.0
-recovery_behaviour_enabled: true
-planner_frequency: 5.0
+# controller_frequency: 5.0
+# recovery_behaviour_enabled: true
+# planner_frequency: 5.0
 
 TebLocalPlannerROS:
 
@@ -19,7 +19,7 @@ TebLocalPlannerROS:
  # Robot
          
  max_vel_x: 0.4
- max_vel_x_backwards: 0.0
+ max_vel_x_backwards: 0.2
  max_vel_theta: 0.3
  acc_lim_x: 100.0
  acc_lim_theta: 100.0
