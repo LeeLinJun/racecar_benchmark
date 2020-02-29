@@ -1,0 +1,78 @@
+#!/bin/bash
+
+#ACCRA configuration
+
+# export MIRA_PATH=/opt/MIRA
+# export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/MIRA/lib
+# export PATH=${PATH}:/opt/MIRA/bin
+# source /opt/MIRA/scripts/mirabash
+
+# export MIRA_PATH=${MIRA_PATH}:/opt/MIRA-commercial
+# export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/MIRA-commercial/lib
+
+# export MIRA_PATH=${MIRA_PATH}:/localhome/demo/accra_ws/src
+
+######################################################
+# ROS configuration
+
+source /opt/ros/kinetic/setup.bash
+source /home/nuc/fei_ws/devel/setup.bash
+# source /localhome/demo/accra_ws/devel/setup.bash
+
+######################################################
+# Phydget
+# export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+
+#######################################################
+# ACCRA
+# roslaunch astro_startup app_bringup.launch &
+
+# sleep 10
+# rostopic pub -1 /command std_msgs/String "speech ready"
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/xsens_v4dot6/lib64/
+export ROS_PACKAGE_PATH=/home/nuc/aruco-3.1.2:$ROS_PACKAGE_PATH
+
+sleep 10
+
+gnome-terminal -e "teamviewer" &
+
+sleep 10
+
+#VAR = "ciao"
+ # if  [ ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}' > /dev/null]
+ # then :
+ #     echo "ciao"
+ # else
+ #     echo "ciaooo"
+ # fi
+
+var=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
+echo "$var"
+
+if [ "$var" == "192.168.0.103" ]; then
+    echo "navigation started!"
+    gnome-terminal -e "roslaunch nuc_navigation dwa_navigation.launch"
+    sleep 20
+    gnome-terminal -e "roslaunch astra_launch astra_pro.launch"
+    sleep 1
+    #gnome-terminal -e "rosrun goroom_test nav_pubLang.py"
+    gnome-terminal -e "rosrun goroom_test nav_survill.py"
+    sleep 1
+    gnome-terminal -e "rosrun nuc_init_pose init_pose.py"
+    sleep 1
+    gnome-terminal -e "rosrun aruco-3.1.2 aruco_test_ros"
+    sleep 20
+#els
+#    echo "demo_prato"
+#    gnome-terminal -e "roslaunch vel_usb_control demo_prato_launch.launch"
+fi
+
+
+
+
+
+#gnome-terminal -e "roslaunch vel_usb_control demo_prato_launch.launch"
+#gnome-terminal -e "roslaunch vel_usb_control keyboard_control.launch"
+
+#gnome-terminal -e "roslaunch vel_usb_control android_control.launch"

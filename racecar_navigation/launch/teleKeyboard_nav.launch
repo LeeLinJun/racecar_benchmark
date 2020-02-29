@@ -1,0 +1,11 @@
+<launch>
+
+  <include file="$(find yocs_cmd_vel_mux)/launch/yocs_cmd_vel_mux.launch"/>
+
+  <!-- Start the base_controller node -->
+  <node pkg="nuc_serial_commu" type="nuc_serial_commu" name="nuc_serial_commu" output="screen">
+  <!-- <node pkg="serial_commu_nuc" type="serial_commu_nuc" name="serial_commu_nuc" > -->
+        <remap from="/cmd_vel_mux" to="/yocs_cmd_vel_mux/output/cmd_vel" />
+  </node>
+
+</launch>

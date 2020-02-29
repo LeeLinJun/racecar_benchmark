@@ -1,0 +1,60 @@
+<launch>
+
+  <!-- speech speaking node -->
+
+  <!-- launch rosbridge_websocket -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"/>
+  <!-- <node pkg="web_video_server" type="web_video_server" name="web_video_server" output="screen"></node> -->
+  <include file="$(find yocs_cmd_vel_mux)/launch/yocs_cmd_vel_mux.launch"/>
+
+  <param name="language" value="it"/>
+  <node pkg="picotts" type="picotts.exe" name="picotts" required="true" args="_engine:=microsoft" >
+    <!-- args="_language:=it"  -->
+    <!-- <param name="language" type="str" value="it"/> -->
+  </node>
+
+  <!-- Start the base_controller node -->
+  <!-- <node pkg="nuc_serial_commu" type="nuc_serial_commu_ekf" name="nuc_serial_commu_ekf" output="screen"> -->
+  <node pkg="nuc_serial_commu" type="nuc_serial_commu_aruco" name="nuc_serial_commu_aruco" output="screen">
+    <!-- <node pkg="serial_commu_nuc" type="serial_commu_nuc" name="serial_commu_nuc" > -->
+    <remap from="/cmd_vel_mux" to="/yocs_cmd_vel_mux/output/cmd_vel"/>
+  </node>
+
+  <!-- Start IMU publish node -->
+  <node pkg="imu_awinda" type="imu_awinda" name="imu_awinda"/>
+
+  <!--Import robot_pose_ekf file into the current file -->
+  <include file="$(find robot_pose_ekf)/launch/robot_pose_ekf.launch"/>
+
+  <!-- Start omron_os32c laser node-->
+  <node pkg="omron_os32c_driver" type="omron_os32c_node" name="omron_os32c_node">
+    <param name="host" value="192.168.1.11"/>
+    <param name="local_ip" value="192.168.1.50"/>
+    <param name="frame_id" value="laser"/>
+    <param name="start_angle" value="1.7500"/>
+    <param name="end_angle" value="-1.7500"/>
+  </node>
+
+  <!-- publish static transform between laser and base_link -->
+  <node pkg="tf" type="static_transform_publisher" name="baselink_laser_TFbroadcaster" args="0.14093 0 0.20116 0 0 0 /base_link /laser 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="baselink_imu_TFbroadcaster" args="0.131687 0 0.335668 0 0 0 /base_link /imu_link 100"/>
+
+  <!-- Run the map server: load the pre-build map -->
+  <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find nuc_mapping)/maps/test5.yaml" output="screen"/> -->
+  <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find nuc_mapping)/maps/verona/veronaTEST2_modify2.yaml" output="screen"/> -->
+  <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find nuc_mapping)/maps/verona/v20190611_modify.yaml" output="screen"/> -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find nuc_mapping)/maps/sssa/sssa_v3_mdf.yaml" output="screen"/>
+
+  <!---Run Move Base: for moving the robot to a goal pose within a given reference frame -->
+  <include file="$(find nuc_navigation)/launch/dwa_planner/dwa_move_base.launch"/>
+
+  <!---Run AMCL: for localization using an existing map -->
+  <include file="$(find nuc_navigation)/launch/amcl_diff.launch"/>
+
+  <node pkg="joy" type="joy_node" name="joy_read_node" output="screen"></node>
+  <node pkg="nuc_teleop_joy" type="simple_joy.py" name="joy_control_node" output="screen"></node>
+  <!-- visualization -->
+  <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find slam)/rviz/navigation.rviz" /> -->
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find slam)/rviz/navigation_tutorial.rviz"/> -->
+
+</launch>

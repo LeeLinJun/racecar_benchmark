@@ -1,0 +1,28 @@
+#footprint: [[-0.6, -0.26], [-0.6, 0.26], [0.10, 0.26], [0.10, -0.26]]
+footprint: [[0.4564, 0.172], [-0.2024,0.172], [-0.2024,-0.172], [0.4564,-0.172]]
+# footprint_padding: 0.01
+
+robot_base_frame: base_link
+update_frequency: 3.0
+publish_frequency: 3.0
+transform_tolerance: 0.5
+
+resolution: 0.05
+
+obstacle_range: 5.0
+raytrace_range: 6.0
+
+#layer definitions
+static:
+    map_topic: /map
+    subscribe_to_updates: true
+
+obstacles_laser:
+    observation_sources: laser
+    laser: {data_type: LaserScan, clearing: true, marking: true, topic: base_scan, inf_is_valid: true}
+
+# inflation:
+#     inflation_radius: 0.4
+#     cost_scaling_factor: 3.00
+    # Excellence ： 0.8/3.0
+    # Good Case : 0.6/6.0  1.5/4.0  1.0/5.0   0.5/4.0

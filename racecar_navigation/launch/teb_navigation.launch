@@ -1,0 +1,14 @@
+<launch>
+
+
+
+  <!---Run Move Base: for moving the robot to a goal pose within a given reference frame -->
+  <include file="$(find nuc_navigation)/launch/teb_planner/teb_move_base.launch"/>
+
+  <!---Run AMCL: for localization using an existing map -->
+  <include file="$(find nuc_navigation)/launch/amcl_diff.launch"/>
+
+  <node pkg="nuc_navigation" type="test_controller.py" name="test_controller" output="screen"></node>
+
+
+</launch>
