@@ -93,8 +93,9 @@ class NucInitPose():
 
 if __name__ == '__main__':
     goroom = NucInitPose()
-    NUM_EXP = 3
+    NUM_EXP = 100
     NUM_REPEAT = 3
+    MAX_TIME = 60
     data = np.zeros((NUM_EXP, NUM_REPEAT, 3))
     try:        
         loop_r = rospy.Rate(10)  # 10hz
@@ -112,7 +113,7 @@ if __name__ == '__main__':
                 START_TIME = rospy.Time.now()
                 END_TIME = rospy.Time.now()
 
-                while (not goroom.current_state == GoalStatus.SUCCEEDED) and (END_TIME-START_TIME).secs <= 60:
+                while (not goroom.current_state == GoalStatus.SUCCEEDED) and (END_TIME-START_TIME).secs <= MAX_TIME:
                     signal.signal(signal.SIGINT, quit)
                     signal.signal(signal.SIGTERM, quit)
                     goroom.current_state = goroom.move_base.get_state()
@@ -123,10 +124,10 @@ if __name__ == '__main__':
                     delta_x = goroom.robot_pose_now.position.x - goroom.robot_pose_last.position.x
                     delta_y = goroom.robot_pose_now.position.y - goroom.robot_pose_last.position.y
                     delta_z = goroom.robot_pose_now.position.z - goroom.robot_pose_last.position.z
-                    total_path_length = total_path_length + math.sqrt(math.pow(delta_x, 2) + math.pow(delta_y, 2) + math.pow(delta_z, 2))
                     goroom.robot_pose_last = goroom.robot_pose_now
+                    total_path_length = total_path_length + math.sqrt(math.pow(delta_x, 2) + math.pow(delta_y, 2) + math.pow(delta_z, 2))
                     END_TIME = rospy.Time.now()    
-                if not goroom.current_state == GoalStatus.SUCCEEDED and (END_TIME-START_TIME).secs > 60:
+                if not goroom.current_state == GoalStatus.SUCCEEDED and (END_TIME-START_TIME).secs > MAX_TIME:
                     success_flag = 0
                 else:
                     success_flag = 1
@@ -138,6 +139,8 @@ if __name__ == '__main__':
                 rospy.loginfo("Totally time : {}\n Trajectory length: {}\n If Success:{}\n".format((END_TIME-START_TIME).secs,total_path_length, success_flag))
 
                 goroom.current_state = 'pending'
+            if i % 3 == 0:
+                np.save("dwa_{}.npy".format(i), data)
 
 
         # loop_r.sleep()

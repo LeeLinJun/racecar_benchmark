@@ -224,7 +224,7 @@ class RacecarSimulator {
 
       // Publish them
       // if (broadcast_transform) br.sendTransform(ts);
-      if (broadcast_transform) br.sendTransform(map_to_odom);
+      if (broadcast_transform) br.sendTransform(map_to_odom); 
       odom_pub.publish(odom);
       if (broadcast_transform) br_odom.sendTransform(odom_trans);
       // Set the steering angle to make the wheels move
