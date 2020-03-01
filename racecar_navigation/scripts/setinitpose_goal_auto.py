@@ -17,6 +17,8 @@ from std_msgs.msg import String
 import rospkg
 import numpy as np
 import math
+from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
+
 
 class NucInitPose():
     def __init__(self):
@@ -31,6 +33,7 @@ class NucInitPose():
 
         self.initpose_pub = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=10)
         self.odom_sub = rospy.Subscriber("/odom", Odometry, self.OdometryCallback)
+        self.controlspeed_sub = rospy.Subscriber("/drive", AckermannDriveStamped, self.ControlSpeedCallback)
 
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self.move_base.wait_for_server(rospy.Duration(60))    # Wait 60 seconds for the action server to become available
@@ -47,6 +50,9 @@ class NucInitPose():
             self.robot_pose_now = odom_receive.pose.pose
             # rospy.loginfo(self.robot_pose_now.position.x)
 
+    def ControlSpeedCallback(self, speed_receive):
+            self.robot_controlspeed_now = speed_receive.drive
+
     def set_init(self, left_id=0, right_id=0, left_to_right=True):
         if left_to_right:
             start = self.left_states[left_id]
@@ -61,6 +67,7 @@ class NucInitPose():
 
         self.robot_pose_now = Pose()
         self.robot_pose_last = Pose()
+        self.robot_controlspeed_now = AckermannDrive()
 
     def initial_loca_pub(self, start_id):
         start_pos = PoseWithCovarianceStamped()
@@ -96,7 +103,7 @@ if __name__ == '__main__':
     NUM_EXP = 100
     NUM_REPEAT = 3
     MAX_TIME = 60
-    data = np.zeros((NUM_EXP, NUM_REPEAT, 3))
+    data = np.zeros((NUM_EXP, NUM_REPEAT, 5))
     try:        
         loop_r = rospy.Rate(10)  # 10hz
         for i in range(NUM_EXP):
@@ -113,6 +120,9 @@ if __name__ == '__main__':
                 START_TIME = rospy.Time.now()
                 END_TIME = rospy.Time.now()
 
+                MAX_POSIT_STEERING_ANGLE = 0.0
+                MAX_NEGAT_STEERING_ANGLE = 0.0
+
                 while (not goroom.current_state == GoalStatus.SUCCEEDED) and (END_TIME-START_TIME).secs <= MAX_TIME:
                     signal.signal(signal.SIGINT, quit)
                     signal.signal(signal.SIGTERM, quit)
@@ -126,6 +136,12 @@ if __name__ == '__main__':
                     delta_z = goroom.robot_pose_now.position.z - goroom.robot_pose_last.position.z
                     goroom.robot_pose_last = goroom.robot_pose_now
                     total_path_length = total_path_length + math.sqrt(math.pow(delta_x, 2) + math.pow(delta_y, 2) + math.pow(delta_z, 2))
+
+                    if (goroom.robot_controlspeed_now.steering_angle > MAX_POSIT_STEERING_ANGLE):
+                        MAX_POSIT_STEERING_ANGLE = goroom.robot_controlspeed_now.steering_angle
+                    if (goroom.robot_controlspeed_now.steering_angle < MAX_NEGAT_STEERING_ANGLE):
+                        MAX_NEGAT_STEERING_ANGLE = goroom.robot_controlspeed_now.steering_angle
+                        
                     END_TIME = rospy.Time.now()    
                 if not goroom.current_state == GoalStatus.SUCCEEDED and (END_TIME-START_TIME).secs > MAX_TIME:
                     success_flag = 0
@@ -135,12 +151,16 @@ if __name__ == '__main__':
                 data[i, j, 0] = (END_TIME-START_TIME).secs
                 data[i, j, 1] = total_path_length
                 data[i, j, 2] = success_flag
+                data[i, j, 3] = MAX_POSIT_STEERING_ANGLE
+                data[i, j, 4] = MAX_NEGAT_STEERING_ANGLE
 
-                rospy.loginfo("Totally time : {}\n Trajectory length: {}\n If Success:{}\n".format((END_TIME-START_TIME).secs,total_path_length, success_flag))
+                rospy.loginfo("Totally time : {}\n Trajectory length: {}\n If Success :{}\n".format((END_TIME-START_TIME).secs,total_path_length, success_flag))
+                rospy.loginfo("Max Speed + : {}\n Max Speed - : {}\n".format(MAX_POSIT_STEERING_ANGLE, MAX_NEGAT_STEERING_ANGLE))
 
                 goroom.current_state = 'pending'
             if i % 3 == 0:
                 np.save("dwa_{}.npy".format(i), data)
+                rospy.loginfo("saved!")
 
 
         # loop_r.sleep()
