@@ -47,6 +47,6 @@
   <node pkg="nuc_navigation" type="test_controller.py" name="test_controller" output="screen"></node> 
 
 
-  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find racecar_simulator)/launch/map_robot.rviz" />
+  <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d $(find racecar_simulator)/launch/map_robot.rviz" /> -->
 
 </launch>
