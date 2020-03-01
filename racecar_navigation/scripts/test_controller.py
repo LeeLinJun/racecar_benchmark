@@ -21,6 +21,12 @@ class RobotCommand():
         speed = np.hypot(theta_dot*d, np.hypot(vx,vy)) * np.sign(vx)
         action = AckermannDriveStamped()
         theta = np.arctan2(d*theta_dot, np.hypot(vx,vy)) * np.sign(vx)
+
+        if theta > 0.5:
+            theta = 0.5
+        if theta < -0.5:
+            theta = -0.5
+        
         action.drive.steering_angle = theta
         action.drive.speed = speed
         self.pub.publish(action)

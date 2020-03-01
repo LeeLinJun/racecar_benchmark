@@ -3,8 +3,8 @@
 # planner_frequency: 10.0
 
 DWAPlannerROS:
-  max_vel_x: 0.30
-  min_vel_x: 0.02
+  max_vel_x: 0.20
+  min_vel_x: 0.05
 
   max_vel_y: 0.00
   min_vel_y: 0.00
@@ -12,12 +12,12 @@ DWAPlannerROS:
   # Warning!
   #   do not set min_trans_vel to 0.0 otherwise dwa will always think translational velocities
   #   are non-negligible and small in place rotational velocities will be created.
-  max_vel_trans: 0.30 # choose slightly less than the base's capability
+  max_vel_trans: 0.20 # choose slightly less than the base's capability
   min_vel_trans: 0.05  # this is the min trans velocity when there is negligible rotational velocity
   trans_stopped_vel: 0.01
 
 
-  max_vel_theta: 0.6  # choose slightly less than the base's capability
+  max_vel_theta: 0.29  # choose slightly less than the base's capability
   min_vel_theta: 0.01  # this is the min angular velocity when there is negligible translational velocity
   theta_stopped_vel: 0.01
 
@@ -37,7 +37,7 @@ DWAPlannerROS:
   vtheta_samples: 40  # 20
 
 # Trajectory Scoring Parameters
-  path_distance_bias: 40.0 #1.0 #32.0      # 32.0   - weighting for how much it should stick to the global path plan
+  path_distance_bias: 32.0 #1.0 #32.0      # 32.0   - weighting for how much it should stick to the global path plan
   goal_distance_bias: 24.0 #0.8 #24.0      # 24.0   - wighting for how much it should attempt to reach its goal
   occdist_scale: 0.03 #0.3            # 0.01   - weighting for how much the controller should avoid obstacles
   forward_point_distance: 0.325 # 0.325  - how far along to place an additional scoring point
