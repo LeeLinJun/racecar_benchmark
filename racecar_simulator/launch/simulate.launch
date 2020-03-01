@@ -32,11 +32,11 @@
     <rosparam file="$(find racecar_simulator)/params/local_costmap_param.yaml" command="load" />
     <rosparam file="$(find racecar_simulator)/params/global_costmap_param.yaml" command="load" /> 
    
-    <!-- <rosparam file="$(find racecar_simulator)/params/teb_local_planner.yaml" command="load" /> -->
-    <!-- <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" /> -->
+    <rosparam file="$(find racecar_simulator)/params/teb_local_planner.yaml" command="load" />
+    <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
 
-    <rosparam file="$(find racecar_simulator)/params/dwa_local_planner.yaml" command="load" />
-    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" /> 
+    <!-- <rosparam file="$(find racecar_simulator)/params/dwa_local_planner.yaml" command="load" /> -->
+    <!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />  -->
   </node>
 
 
